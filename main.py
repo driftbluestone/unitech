@@ -93,4 +93,4 @@ class UniTech(commands.Cog):
 
 if __name__ == "__main__":
     image = Image.open(graph_spiral(4))
-    image.show()
+    stars(graph_spiral(4, 0.8), 4000).show()
