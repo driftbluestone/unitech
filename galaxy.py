@@ -60,3 +60,7 @@ def zoom(image: Image.Image, scale: float) -> Image.Image:
     crop = ((image.width - width) // 2, (image.height - height) // 2, (image.width + width) // 2, (image.height + height) // 2)
     image = image.crop(crop)
     return image
+
+if __name__ == "__main__":
+    random.seed(0)
+    place_stars(graph_spiral(4, 0.8), 4000).show()

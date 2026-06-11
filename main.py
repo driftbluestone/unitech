@@ -33,7 +33,3 @@ class UniTech(commands.Cog):
         im.save(image, "PNG")
         image.seek(0)
         await interaction.followup.send(file=discord.File(fp=image, filename="dn.png"))
-
-if __name__ == "__main__":
-    random.seed(0)
-    galaxy.place_stars(galaxy.graph_spiral(4, 0.8), 4000).show()
