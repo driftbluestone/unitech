@@ -7,11 +7,9 @@ from PIL import Image, ImageDraw
 from pathlib import Path
 DIR = Path(__file__).parent.absolute()
 
-random.seed(0)
 phi = (((5 ** 0.5) + 1) / (2*np.pi))
-def graph_spiral(spirals: int): 
+def graph_spiral(spirals: int, size): 
     img = Image.new("RGBA", (2000, 2000), color=(0, 0, 0))
-    plot_gray = Image.new("RGBA", (2000, 2000), color=(0, 0, 0, 0))
     plot_white= Image.new("RGBA", (2000, 2000), color=(0, 0, 0, 0))
     for i in range(spirals):
         theta = np.linspace(i*(2 * (np.pi) / spirals), (2*np.pi)+(i*(2 * (np.pi) / spirals)), 1000)
@@ -24,30 +22,43 @@ def graph_spiral(spirals: int):
         ax.set_xticklabels([])
         ax.set_yticklabels([])
 
-        ax.plot(theta, r, color = (1, 1, 1), linewidth = 20)
+        ax.plot(theta, r, color = (1, 1, 1), linewidth = 80 // spirals)
         buffer = io.BytesIO()
         fig.savefig(buffer, dpi = 300, transparent=True)
         plot = Image.open(buffer)
         plot_white.paste(plot, (0, 0), plot)
-
-        ax.plot(theta, r, color = (0.5, 0.5, 0.5), linewidth = 40)
-        buffer = io.BytesIO()
-        fig.savefig(buffer, dpi = 300, transparent=True)
-        plot = Image.open(buffer)
-        plot_gray.paste(plot, (0, 0), plot)
         
         plt.close()
     
-    plot_gray = plot_gray.crop(plot_gray.getbbox()).resize((2000, 2000))
     plot_white = plot_white.crop(plot_white.getbbox()).resize((2000, 2000))
-    
-    img.paste(plot_gray, (0, 0), plot_gray)
+    plot_white = zoom(plot_white, size)
     img.paste(plot_white, (0, 0), plot_white)
 
-    image = io.BytesIO()
-    img.save(image, "PNG")
-    image.seek(0)
+    return img
+
+def stars(img: Image.Image, count):
+    width, height = img.size
+    width -= 1
+    height -= 1
+    image = Image.new("RGBA", (2000, 2000), color=(0, 0, 0))
+    im = ImageDraw.Draw(image)
+    for i in range(count):
+        coords = (random.randint(1, width), random.randint(1, height))
+        color = img.getpixel(coords)
+        if color <= (0.1, 0.1, 0.1):
+            continue
+        star = random.choice(list(star_data.values()))
+        im.circle(coords, star["size"], star["color"])
+    
     return image
+
+def zoom(image: Image.Image, scale: float) -> Image.Image:
+    width, height = image.size
+    image = image.resize((int(width * scale), int(height * scale)))
+    crop = ((image.width - width) // 2, (image.height - height) // 2, (image.width + width) // 2, (image.height + height) // 2)
+    image = image.crop(crop)
+    return image
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(UniTech(bot=bot))
@@ -55,15 +66,15 @@ async def setup(bot: commands.Bot) -> None:
 star_data = {
     "yellow": {
         "color": (255, 255, 0),
-        "size": 8
+        "size": 4
     },
     "blue": {
         "color": (0, 0, 255),
-        "size": 13
+        "size": 7
     },
     "red": {
         "color": (255, 0, 0),
-        "size": 18
+        "size": 9
     }
 }    
 class UniTech(commands.Cog):
@@ -71,9 +82,14 @@ class UniTech(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="starmap", description="starmap? maybe!")
-    async def starmap(self, interaction: discord.Interaction, arms: int):
+    async def starmap(self, interaction: discord.Interaction, arms: int, count: int, scale: float):
+        random.seed(0)
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File(fp=graph_spiral(arms), filename="dn.png"))
+        im = stars(graph_spiral(arms, scale), count)
+        image = io.BytesIO()
+        im.save(image, "PNG")
+        image.seek(0)
+        await interaction.followup.send(file=discord.File(fp=image, filename="dn.png"))
 
 if __name__ == "__main__":
     image = Image.open(graph_spiral(4))
