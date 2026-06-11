@@ -82,15 +82,14 @@ class UniTech(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="starmap", description="starmap? maybe!")
-    async def starmap(self, interaction: discord.Interaction, arms: int, count: int, scale: float):
-        random.seed(0)
+    async def starmap(self, interaction: discord.Interaction, seed: int):
+        random.seed(seed)
         await interaction.response.defer()
-        im = stars(graph_spiral(arms, scale), count)
+        im = stars(graph_spiral(4, 0.8), 4000)
         image = io.BytesIO()
         im.save(image, "PNG")
         image.seek(0)
         await interaction.followup.send(file=discord.File(fp=image, filename="dn.png"))
 
 if __name__ == "__main__":
-    image = Image.open(graph_spiral(4))
     stars(graph_spiral(4, 0.8), 4000).show()
