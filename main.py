@@ -1,14 +1,15 @@
-import discord, io, random
+import discord, io, random, json
 from discord import app_commands
 from discord.ext import commands
-from . import galaxy, solar_system, consts
+try:
+    from . import galaxy, solar_system, consts
+except ImportError:
+    import galaxy, solar_system, consts
 from pathlib import Path
 DIR = Path(__file__).parent.absolute()
 
-
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(UniTech(bot=bot))
-
 
 class UniTech(commands.Cog):
     def __init__(self, bot: commands.Bot):

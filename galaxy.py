@@ -2,9 +2,20 @@ import json, random, io
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-from . import consts
+try:
+    from . import consts
+except:
+    import consts
 from pathlib import Path
 DIR = Path(__file__).parent.absolute()
+
+def generate(seed, spirals, size, stars) -> Image.Image:
+    random.seed(seed)
+    return place_stars(graph_spiral(spirals, size), stars)
+
+def render_from_file(file: str) -> Image.Image:
+    with open(f"{DIR}/{file}", "r"):
+        pass
 
 def graph_spiral(spirals: int, size): 
     img = Image.new("RGBA", (2000, 2000), color=(0, 0, 0))

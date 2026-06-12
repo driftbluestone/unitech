@@ -1,6 +1,9 @@
 import random, math
 from PIL import Image, ImageDraw
-from . import consts
+try:
+    from . import consts
+except:
+    import consts
 
 def solar_system(star, planet_count):
     img = Image.new("RGBA", (2000, 2000), (0, 0, 0))
